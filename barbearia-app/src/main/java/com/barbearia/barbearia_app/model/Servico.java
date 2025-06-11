@@ -1,4 +1,4 @@
-package com.barbearia.model;
+package com.barbearia.barbearia_app.model;
 
 import jakarta.persistence.*;
 import lombok.Data;

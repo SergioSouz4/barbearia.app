@@ -1,4 +1,4 @@
-package com.barbearia.model;
+package com.barbearia.barbearia_app.model;
 
 public enum StatusAgendamento {
     PENDENTE,
