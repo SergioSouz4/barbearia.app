@@ -25,7 +25,5 @@ Sistema backend desenvolvido em **Java** com **Spring Boot**, que permite o gere
 - **Lombok**
 - **Maven**
 
----
 
-## 📦 Estrutura do Projeto
 
