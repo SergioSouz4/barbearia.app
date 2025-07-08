@@ -1,26 +1,21 @@
-package com.barbearia.dto;
+package com.barbearia.barbearia_app.dto;
 
-import lombok.Data;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import java.time.LocalDate;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
 
 @Data
 public class ClienteDTO {
-    private Long id;
-
-    @NotBlank(message = "O nome é obrigatório")
+    @NotBlank(message = "Nome é obrigatório")
+    @Size(min = 2, max = 100, message = "Nome deve ter entre 2 e 100 caracteres")
     private String nome;
 
-    @Email(message = "Formato de email inválido")
+    @NotBlank(message = "Email é obrigatório")
+    @Email(message = "Email deve ser válido")
     private String email;
 
-    @NotBlank(message = "O telefone é obrigatório")
-    @Pattern(regexp = "$$\d{2}$$\s\d{4,5}-\d{4}", message = "Formato de telefone inválido. Use (99) 99999-9999")
+    @NotBlank(message = "Telefone é obrigatório")
+    @Size(min = 10, max = 15, message = "Telefone deve ter entre 10 e 15 caracteres")
     private String telefone;
-
-    private LocalDate dataNascimento;
-
-    private Long usuarioId;
 }

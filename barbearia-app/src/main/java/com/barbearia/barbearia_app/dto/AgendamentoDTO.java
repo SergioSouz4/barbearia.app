@@ -1,5 +1,6 @@
-package com.barbearia.dto;
+package com.barbearia.barbearia_app.dto;
 
+import com.barbearia.barbearia_app.model.Servico;
 import lombok.Data;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -21,4 +22,25 @@ public class AgendamentoDTO {
     private LocalDateTime dataHoraInicio;
 
     private String observacoes;
+
+    public Long getClienteId() {
+        return 0L;
+    }
+
+    public Long getBarbeiroId() {
+        return null;
+    }
+
+    public Long getServicoId() {
+        return null;
+    }
+
+    public LocalDateTime getDataHoraInicio() {
+        return null;
+    }
+
+    public Servico getObservacoes() {
+        return null;
+    }
 }
+

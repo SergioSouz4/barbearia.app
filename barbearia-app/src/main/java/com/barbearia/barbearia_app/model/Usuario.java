@@ -1,18 +1,25 @@
 package com.barbearia.barbearia_app.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import java.util.HashSet;
-import java.util.Set;
+import lombok.NoArgsConstructor;
 
-@Data
+import java.util.List;
+
 @Entity
 @Table(name = "usuarios")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
+    private String nome;
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -21,12 +28,9 @@ public class Usuario {
     private String senha;
 
     @Column(nullable = false)
-    private String nome;
+    private boolean ativo = true;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "usuario_roles", joinColumns = @JoinColumn(name = "usuario_id"))
-    @Column(name = "role")
-    private Set<String> roles = new HashSet<>();
-
-    private boolean ativo = true;
+    @Enumerated(EnumType.STRING)
+    private List<String> roles;
 }

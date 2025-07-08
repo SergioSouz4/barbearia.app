@@ -1,20 +1,20 @@
-package com.barbearia.service;
+package com.barbearia.barbearia_app.service;
 
-import com.barbearia.dto.AgendamentoDTO;
-import com.barbearia.exception.BusinessException;
-import com.barbearia.exception.ResourceNotFoundException;
-import com.barbearia.model.*;
-import com.barbearia.repository.AgendamentoRepository;
-import com.barbearia.repository.BarbeiroRepository;
-import com.barbearia.repository.ClienteRepository;
-import com.barbearia.repository.ServicoRepository;
+import com.barbearia.barbearia_app.dto.AgendamentoDTO;
+import com.barbearia.barbearia_app.exception.BusinessException;
+import com.barbearia.barbearia_app.exception.ResourceNotFoundException;
+import com.barbearia.barbearia_app.model.*;
+import com.barbearia.barbearia_app.repository.AgendamentoRepository;
+import com.barbearia.barbearia_app.repository.BarbeiroRepository;
+import com.barbearia.barbearia_app.repository.ClienteRepository;
+import com.barbearia.barbearia_app.repository.ServicoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.chrono.ChronoLocalDateTime;
 import java.util.List;
 
 @Service
@@ -65,19 +65,19 @@ public class AgendamentoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado"));
 
         // Verificar se o barbeiro oferece o serviço
-        if (!barbeiro.getServicos().contains(servico)) {
+        if (!barbeiro.getServicos().contains((CharSequence) servico)) {
             throw new BusinessException("Este barbeiro não oferece o serviço selecionado");
         }
 
         // Verificar se a data é futura
-        if (agendamentoDTO.getDataHoraInicio().isBefore(LocalDateTime.now())) {
+        if (agendamentoDTO.getDataHoraInicio().isBefore(ChronoLocalDateTime.from(LocalTime.from(LocalDateTime.now())))) {
             throw new BusinessException("Não é possível agendar para uma data passada");
         }
 
         // Verificar disponibilidade do barbeiro
-        LocalDateTime dataHoraFim = agendamentoDTO.getDataHoraInicio().plus(servico.getDuracao());
+        LocalDateTime dataHoraFim = LocalDateTime.from(agendamentoDTO.getDataHoraInicio().plus(servico.getDuracao()));
         List<Agendamento> agendamentosExistentes = agendamentoRepository.findByBarbeiroAndPeriodo(
-                barbeiro.getId(),
+                Long.valueOf(barbeiro.getId()),
                 agendamentoDTO.getDataHoraInicio(),
                 dataHoraFim
         );
@@ -88,12 +88,12 @@ public class AgendamentoService {
 
         // Criar o agendamento
         Agendamento agendamento = new Agendamento();
-        agendamento.setCliente(cliente);
+        agendamento.setClient(cliente);
         agendamento.setBarbeiro(barbeiro);
-        agendamento.setServico(servico);
+        agendamento.setService(servico);
         agendamento.setDataHoraInicio(agendamentoDTO.getDataHoraInicio());
         agendamento.setDataHoraFim(dataHoraFim);
-        agendamento.setObservacoes(agendamentoDTO.getObservacoes());
+        agendamento.setService(agendamentoDTO.getObservacoes());
 
         return agendamentoRepository.save(agendamento);
     }

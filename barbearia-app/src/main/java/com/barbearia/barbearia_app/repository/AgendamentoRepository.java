@@ -1,7 +1,7 @@
-package com.barbearia.repository;
+package com.barbearia.barbearia_app.repository;
 
-import com.barbearia.model.Agendamento;
-import com.barbearia.model.StatusAgendamento;
+import com.barbearia.barbearia_app.model.Agendamento;
+import com.barbearia.barbearia_app.model.StatusAgendamento;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import java.time.LocalDateTime;

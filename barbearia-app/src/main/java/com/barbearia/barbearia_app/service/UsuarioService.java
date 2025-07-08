@@ -1,10 +1,11 @@
-package com.barbearia.service;
+package com.barbearia.barbearia_app.service;
 
-import com.barbearia.dto.UsuarioDTO;
-import com.barbearia.exception.ResourceAlreadyExistsException;
-import com.barbearia.exception.ResourceNotFoundException;
-import com.barbearia.model.Usuario;
-import com.barbearia.repository.UsuarioRepository;
+import com.barbearia.barbearia_app.dto.UsuarioDTO;
+import com.barbearia.barbearia_app.exception.ResourceNotFoundException;
+import com.barbearia.barbearia_app.model.Usuario;
+import com.barbearia.barbearia_app.repository.UsuarioRepository;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,7 @@ public class UsuarioService {
     }
 
     @Transactional
-    public Usuario criar(UsuarioDTO usuarioDTO) {
+    public Usuario criar(UsuarioDTO usuarioDTO) throws ResourceAlreadyExistsException {
         if (usuarioRepository.existsByEmail(usuarioDTO.getEmail())) {
             throw new ResourceAlreadyExistsException("Email já cadastrado: " + usuarioDTO.getEmail());
         }
@@ -40,17 +41,16 @@ public class UsuarioService {
         Usuario usuario = new Usuario();
         usuario.setEmail(usuarioDTO.getEmail());
         usuario.setSenha(passwordEncoder.encode(usuarioDTO.getSenha()));
-        usuario.setNome(usuarioDTO.getNome());
-        usuario.setRoles(Set.of("ROLE_USER"));
+        usuario.setRoles((List<String>) Set.of("ROLE_USER"));
 
         return usuarioRepository.save(usuario);
     }
 
     @Transactional
-    public Usuario atualizar(Long id, UsuarioDTO usuarioDTO) {
+    public Usuario atualizar(Long id, UsuarioDTO usuarioDTO) throws ResourceAlreadyExistsException {
         Usuario usuario = buscarPorId(id);
 
-        usuario.setNome(usuarioDTO.getNome());
+        usuario.setNome((String) usuarioDTO.getNome());
 
         // Atualiza o email apenas se for diferente
         if (!usuario.getEmail().equals(usuarioDTO.getEmail())) {
@@ -72,5 +72,13 @@ public class UsuarioService {
     public void excluir(Long id) {
         Usuario usuario = buscarPorId(id);
         usuarioRepository.delete(usuario);
+    }
+
+    public Usuario buscarPorEmail(@NotBlank(message = "Informe seu Email") @Email(message = "Email deve ser válido") String email) {
+        return null;
+    }
+
+    public void deletar(Long id) {
+
     }
 }
