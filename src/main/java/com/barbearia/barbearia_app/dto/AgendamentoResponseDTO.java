@@ -26,7 +26,7 @@ public class AgendamentoResponseDTO {
     private LocalDateTime dataCriacao;
     private LocalDateTime dataAtualizacao;
 
-    // Construtor para facilitar a conversão
+    // Construtor para facilitar a conversão.
     public AgendamentoResponseDTO(Long id, String clienteNome, String clienteTelefone,
                                   String barbeiroNome, String servicoNome, Integer servicoDuracao,
                                   LocalDateTime dataHora, StatusAgendamento status,
