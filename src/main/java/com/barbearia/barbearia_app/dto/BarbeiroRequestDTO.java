@@ -18,7 +18,7 @@ public class BarbeiroRequestDTO {
     private String nome;
 
     @NotBlank(message = "Telefone é obrigatório")
-    @Pattern(regexp = "\(\d{2}\) \d{4,5}-\d{4}",
+    @Pattern(regexp = "(d{2}) d{4,5}-d{4}",
             message = "Telefone deve estar no formato (XX) XXXXX-XXXX")
     private String telefone;
 

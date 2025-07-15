@@ -21,7 +21,7 @@ public class CadastroClienteRequestDTO {
     private String email;
 
     @NotBlank(message = "Telefone é obrigatório")
-    @Pattern(regexp = "\(\d{2}\)\s\d{4,5}-\d{4}",
+    @Pattern(regexp = "(d{2})sd{4,5}-d{4}",
             message = "Telefone deve estar no formato (XX) XXXXX-XXXX")
     private String telefone;
 

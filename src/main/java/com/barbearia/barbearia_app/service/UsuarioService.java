@@ -8,8 +8,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -39,13 +37,6 @@ public class UsuarioService implements UserDetailsService {
         return usuarioRepository.existsByEmail(email);
     }
 
-    public Usuario atualizarUltimoLogin(String email) {
-        Usuario usuario = usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
-
-        usuario.setDataUltimoLogin(LocalDateTime.now());
-        return usuarioRepository.save(usuario);
-    }
 
     public void desativarUsuario(Long id) {
         Usuario usuario = usuarioRepository.findById(id)

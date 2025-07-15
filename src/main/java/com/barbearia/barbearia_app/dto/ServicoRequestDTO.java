@@ -21,7 +21,7 @@ public class ServicoRequestDTO {
 
     @NotNull(message = "Preço é obrigatório")
     @DecimalMin(value = "0.01", message = "Preço deve ser maior que zero")
-    @DecimalMax(value = "9999.99", message = "Preço deve ser menor que R\$ 9.999,99")
+    @DecimalMax(value = "9999.99", message = "Preço deve ser menor que R$ 9.999,99")
     @Digits(integer = 4, fraction = 2, message = "Preço deve ter no máximo 4 dígitos inteiros e 2 decimais")
     private BigDecimal preco;
 

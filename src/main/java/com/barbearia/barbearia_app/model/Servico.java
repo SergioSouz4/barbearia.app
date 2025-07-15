@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.temporal.TemporalAmount;
 
 @Entity
@@ -35,6 +36,18 @@ public class Servico {
     private boolean ativo = true;
 
     public TemporalAmount getDuracao() {
+        return null;
+    }
+
+    public void setDataAtualizacao(LocalDateTime now) {
+
+    }
+
+    public LocalDateTime getDataCriacao() {
+        return null;
+    }
+
+    public LocalDateTime getDataAtualizacao() {
         return null;
     }
 }

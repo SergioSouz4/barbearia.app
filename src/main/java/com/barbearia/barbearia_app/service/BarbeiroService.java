@@ -259,4 +259,12 @@ public class BarbeiroService {
                 servico.getDuracaoMinutos()
         );
     }
+
+    public Barbeiro buscarPorTelefone(String telefone) {
+        return null;
+    }
+
+    public List<Barbeiro> buscarPorEspecialidade(String especialidade) {
+        return null;
+    }
 }

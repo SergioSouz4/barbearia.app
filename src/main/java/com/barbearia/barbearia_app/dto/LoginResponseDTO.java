@@ -28,4 +28,8 @@ public class LoginResponseDTO {
         this.nome = nome;
         this.perfilId = perfilId;
     }
+
+    public LoginResponseDTO(String token, String bearer, Long id, String email, String name, String nome, Long perfilId) {
+
+    }
 }

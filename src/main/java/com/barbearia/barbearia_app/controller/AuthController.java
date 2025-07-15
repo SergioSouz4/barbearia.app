@@ -24,6 +24,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -47,33 +48,33 @@ public class AuthController {
 
         // Obter detalhes do usuário
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        Usuario usuario = usuarioService.buscarPorEmail(request.getEmail());
+        Optional<Usuario> usuario = Optional.ofNullable(usuarioService.buscarPorEmail(request.getEmail()));
 
         // Determinar perfil específico e nome
         Long perfilId = null;
-        String nome = usuario.getEmail(); // Fallback
+        String nome = usuario.get().getEmail(); // Fallback
 
-        if (usuario.getTipo() == TipoUsuario.CLIENTE) {
-            Cliente cliente = clienteService.buscarPorUsuarioId(usuario.getId());
+        if (usuario.get().getTipo() == TipoUsuario.CLIENTE) {
+            Cliente cliente = clienteService.buscarPorUsuarioId(usuario.get().getId());
             if (cliente != null) {
                 perfilId = cliente.getId();
                 nome = cliente.getNome();
             }
-        } else if (usuario.getTipo() == TipoUsuario.BARBEIRO) {
-            Barbeiro barbeiro = barbeiroService.buscarPorUsuarioId(usuario.getId());
+        } else if (usuario.get().getTipo() == TipoUsuario.BARBEIRO) {
+            Barbeiro barbeiro = barbeiroService.buscarPorUsuarioId(usuario.get().getId());
             if (barbeiro != null) {
                 perfilId = barbeiro.getId();
                 nome = barbeiro.getNome();
             }
-        } else if (usuario.getTipo() == TipoUsuario.ADMINISTRADOR) {
+        } else if (usuario.get().getTipo() == TipoUsuario.ADMINISTRADOR) {
             nome = "Administrador";
         }
 
         // Gerar token com informações completas
         String token = jwtUtil.generateTokenWithUserInfo(
                 userDetails,
-                usuario.getId(),
-                usuario.getTipo().name(),
+                usuario.get().getId(),
+                usuario.get().getTipo().name(),
                 perfilId,
                 nome
         );
@@ -82,9 +83,9 @@ public class AuthController {
         LoginResponseDTO response = new LoginResponseDTO(
                 token,
                 "Bearer",
-                usuario.getId(),
-                usuario.getEmail(),
-                usuario.getTipo().name(),
+                usuario.get().getId(),
+                usuario.get().getEmail(),
+                usuario.get().getTipo().name(),
                 nome,
                 perfilId
         );

@@ -10,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -76,5 +77,13 @@ public class Usuario implements UserDetails {
     @Override
     public boolean isEnabled() {
         return ativo;
+    }
+
+    public Usuario orElseThrow(Object usuárioNãoEncontrado) {
+        return null;
+    }
+
+    public Arrays getRoles() {
+        return null;
     }
 }

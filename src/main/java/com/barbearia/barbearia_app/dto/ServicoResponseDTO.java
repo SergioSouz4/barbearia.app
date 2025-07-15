@@ -40,7 +40,7 @@ public class ServicoResponseDTO {
 
         // Calcular campos formatados
         this.duracaoFormatada = formatarDuracao(duracaoMinutos);
-        this.precoFormatado = String.format("R\$ %.2f", preco);
+        this.precoFormatado = String.format("R$ %.2f", preco);
     }
 
     private String formatarDuracao(Integer minutos) {

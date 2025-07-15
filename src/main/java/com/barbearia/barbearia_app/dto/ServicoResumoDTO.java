@@ -28,7 +28,7 @@ public class ServicoResumoDTO {
         this.duracaoMinutos = duracaoMinutos;
 
         // Formatar campos
-        this.precoFormatado = String.format("R\$ %.2f", preco);
+        this.precoFormatado = String.format("R$ %.2f", preco);
         this.duracaoFormatada = formatarDuracao(duracaoMinutos);
     }
 
