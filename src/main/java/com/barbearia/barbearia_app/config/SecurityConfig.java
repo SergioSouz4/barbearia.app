@@ -27,7 +27,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final UsuarioService usuarioService;
     private final CorsConfigurationSource corsConfigurationSource;
-    private final PasswordEncoder passwordEncoder; // ← Agora injeta em vez de criar
+    private final PasswordEncoder passwordEncoder;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -35,11 +35,15 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // Endpoints públicos
+                        // Endpoints públicos - MAIS PERMISSIVOS
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
+
+                        // TEMPORÁRIO: Permitir acesso aos serviços e barbeiros para teste
+                        .requestMatchers("/api/servicos/**").permitAll()
+                        .requestMatchers("/api/barbeiros/**").permitAll()
 
                         // Endpoints para clientes
                         .requestMatchers("/api/clientes/me/**").hasRole("CLIENTE")
@@ -57,8 +61,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/comissoes/**").hasRole("ADMINISTRADOR")
 
                         // Endpoints gerais (requerem autenticação)
-                        .requestMatchers("/api/servicos/**").hasAnyRole("ADMINISTRADOR")
-                        .requestMatchers("/api/barbeiros/**").hasAnyRole("BARBEIRO", "ADMINISTRADOR")
                         .requestMatchers("/api/clientes/**").hasAnyRole("ADMINISTRADOR")
                         .requestMatchers("/api/agendamentos/**").hasAnyRole("CLIENTE", "BARBEIRO", "ADMINISTRADOR")
                         .requestMatchers("/api/horarios-funcionamento/**").hasAnyRole("BARBEIRO", "ADMINISTRADOR")
