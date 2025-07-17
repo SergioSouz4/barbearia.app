@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
@@ -24,6 +25,7 @@ public class DataLoader implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
         if (usuarioRepository.count() == 0) {
             criarDadosIniciais();
@@ -50,16 +52,19 @@ public class DataLoader implements CommandLineRunner {
         );
         servicoRepository.saveAll(servicos);
 
-        // 3. Criar barbeiros
+        // 3. Criar barbeiros (um por vez para evitar problemas de transação)
         Barbeiro barbeiro1 = criarBarbeiro("Carlos Silva", "(11) 99999-1111", "Cortes clássicos",
                 new BigDecimal("30.00"), "carlos@barbearia.com");
+
+        // Buscar serviços salvos do banco
+        List<Servico> servicosSalvos = servicoRepository.findAll();
+        barbeiro1.setServicos(servicosSalvos.subList(0, 3)); // Corte, Barba, Corte+Barba
+        barbeiroRepository.save(barbeiro1);
+
         Barbeiro barbeiro2 = criarBarbeiro("Roberto Santos", "(11) 99999-2222", "Barbas e bigodes",
                 new BigDecimal("25.00"), "roberto@barbearia.com");
-
-        barbeiro1.setServicos(servicos.subList(0, 3)); // Corte, Barba, Corte+Barba
-        barbeiro2.setServicos(servicos.subList(1, 5)); // Barba, Corte+Barba, Infantil, Sobrancelha
-
-        barbeiroRepository.saveAll(List.of(barbeiro1, barbeiro2));
+        barbeiro2.setServicos(servicosSalvos.subList(1, 5)); // Barba, Corte+Barba, Infantil, Sobrancelha
+        barbeiroRepository.save(barbeiro2);
 
         // 4. Criar horários de funcionamento
         criarHorariosFuncionamento(barbeiro1);
@@ -87,15 +92,15 @@ public class DataLoader implements CommandLineRunner {
         usuario.setEmail(email);
         usuario.setSenha(passwordEncoder.encode("barbeiro123"));
         usuario.setTipo(TipoUsuario.BARBEIRO);
-        usuarioRepository.save(usuario);
+        Usuario usuarioSalvo = usuarioRepository.save(usuario);
 
-        // Criar barbeiro
+        // Criar barbeiro com usuário já salvo
         Barbeiro barbeiro = new Barbeiro();
         barbeiro.setNome(nome);
         barbeiro.setTelefone(telefone);
         barbeiro.setEspecialidade(especialidade);
         barbeiro.setPercentualComissao(comissao);
-        barbeiro.setUsuario(usuario);
+        barbeiro.setUsuario(usuarioSalvo); // ← Usar usuário já salvo
 
         return barbeiro;
     }

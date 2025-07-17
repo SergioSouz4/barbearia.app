@@ -86,4 +86,8 @@ public class Usuario implements UserDetails {
     public Arrays getRoles() {
         return null;
     }
+
+    public <E extends Enum<E>> Enum<E> getTipoUsuario() {
+        return null;
+    }
 }
