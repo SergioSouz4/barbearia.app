@@ -3,7 +3,6 @@ package com.barbearia.barbearia_app.service;
 import com.barbearia.barbearia_app.dto.*;
 import com.barbearia.barbearia_app.model.Cliente;
 import com.barbearia.barbearia_app.model.Usuario;
-import com.barbearia.barbearia_app.model.enums.TipoUsuario;
 import com.barbearia.barbearia_app.repository.ClienteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,12 +22,9 @@ public class ClienteService {
 
     @Transactional
     public ClienteResponseDTO criar(ClienteRequestDTO request) {
-        // Verificar se email já existe
         if (clienteRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email já cadastrado");
         }
-
-        // Verificar se telefone já existe
         if (clienteRepository.existsByTelefone(request.getTelefone())) {
             throw new RuntimeException("Telefone já cadastrado");
         }
@@ -44,20 +41,15 @@ public class ClienteService {
 
     @Transactional
     public ClienteResponseDTO criarComUsuario(ClienteRequestDTO request, Usuario usuario) {
-        // Verificar se email já existe
         if (clienteRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email já cadastrado");
         }
-
-        // Verificar se telefone já existe
         if (clienteRepository.existsByTelefone(request.getTelefone())) {
             throw new RuntimeException("Telefone já cadastrado");
         }
 
-        // Salvar usuário
         Usuario usuarioSalvo = usuarioService.salvar(usuario);
 
-        // Criar cliente
         Cliente cliente = new Cliente();
         cliente.setNome(request.getNome());
         cliente.setEmail(request.getEmail());
@@ -101,18 +93,23 @@ public class ClienteService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Busca o cliente pelo nome e telefone.
+     * Usado para autenticação via nome + telefone (sem senha).
+     */
+    public Optional<Cliente> buscarPorNomeETelefone(String nome, String telefone) {
+        return clienteRepository.findByNomeAndTelefone(nome, telefone);
+    }
+
     @Transactional
     public ClienteResponseDTO atualizar(Long id, ClienteRequestDTO request) {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
-        // Verificar se email já existe (exceto o próprio cliente)
         if (!cliente.getEmail().equals(request.getEmail()) &&
                 clienteRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email já cadastrado");
         }
-
-        // Verificar se telefone já existe (exceto o próprio cliente)
         if (!cliente.getTelefone().equals(request.getTelefone()) &&
                 clienteRepository.existsByTelefone(request.getTelefone())) {
             throw new RuntimeException("Telefone já cadastrado");
@@ -132,11 +129,9 @@ public class ClienteService {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
-        // Soft delete - apenas desativa o cliente
         cliente.setAtivo(false);
         clienteRepository.save(cliente);
 
-        // Desativar usuário também
         if (cliente.getUsuario() != null) {
             usuarioService.desativarUsuario(cliente.getUsuario().getId());
         }
@@ -150,7 +145,6 @@ public class ClienteService {
         cliente.setAtivo(true);
         clienteRepository.save(cliente);
 
-        // Ativar usuário também
         if (cliente.getUsuario() != null) {
             usuarioService.ativarUsuario(cliente.getUsuario().getId());
         }
@@ -165,6 +159,7 @@ public class ClienteService {
     }
 
     // Métodos de conversão
+
     private ClienteResponseDTO converterParaResponseDTO(Cliente cliente) {
         ClienteResponseDTO dto = new ClienteResponseDTO();
         dto.setId(cliente.getId());
@@ -179,7 +174,6 @@ public class ClienteService {
             dto.setUsuarioId(cliente.getUsuario().getId());
         }
 
-        // Calcular estatísticas (se necessário)
         if (cliente.getAgendamentos() != null) {
             dto.setTotalAgendamentos(cliente.getAgendamentos().size());
 
@@ -200,7 +194,6 @@ public class ClienteService {
         dto.setEmail(cliente.getEmail());
         dto.setAtivo(cliente.isAtivo());
 
-        // Calcular estatísticas básicas
         if (cliente.getAgendamentos() != null) {
             dto.setTotalAgendamentos(cliente.getAgendamentos().size());
 

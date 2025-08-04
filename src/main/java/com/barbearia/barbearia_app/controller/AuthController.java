@@ -41,18 +41,16 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(summary = "Login", description = "Autentica um usuário e retorna token JWT")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
-        // Autenticar usuário
+        // Autenticar usuário por email e senha
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getSenha())
         );
 
-        // Obter detalhes do usuário
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         Optional<Usuario> usuario = Optional.ofNullable(usuarioService.buscarPorEmail(request.getEmail()));
 
-        // Determinar perfil específico e nome
         Long perfilId = null;
-        String nome = usuario.get().getEmail(); // Fallback
+        String nome = usuario.get().getEmail(); // valor fallback
 
         if (usuario.get().getTipo() == TipoUsuario.CLIENTE) {
             Cliente cliente = clienteService.buscarPorUsuarioId(usuario.get().getId());
@@ -70,7 +68,6 @@ public class AuthController {
             nome = "Administrador";
         }
 
-        // Gerar token com informações completas
         String token = jwtUtil.generateTokenWithUserInfo(
                 userDetails,
                 usuario.get().getId(),
@@ -79,7 +76,6 @@ public class AuthController {
                 nome
         );
 
-        // Criar resposta
         LoginResponseDTO response = new LoginResponseDTO(
                 token,
                 "Bearer",
@@ -93,16 +89,55 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/login/cliente")
+    @Operation(summary = "Login cliente por nome e telefone", description = "Autentica cliente usando nome e telefone, retorna token JWT")
+    public ResponseEntity<LoginResponseDTO> loginClientePorNomeETelefone(@Valid @RequestBody LoginNomeTelefoneDTO request) {
+        try {
+            // Buscar cliente pelo nome e telefone
+            Cliente cliente = clienteService.buscarPorNomeETelefone(request.getNome(), request.getTelefone())
+                    .orElseThrow(() -> new RuntimeException("Cliente não encontrado com nome e telefone fornecidos"));
+
+            Usuario usuario = cliente.getUsuario();
+
+            if (usuario == null || !usuario.isAtivo()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            }
+
+            // Gerar token JWT com dados do cliente e usuário
+            String token = jwtUtil.generateTokenWithUserInfo(
+                    usuario,  // UserDetails implementado por Usuario (ou adaptar se for diferente)
+                    usuario.getId(),
+                    usuario.getTipo().name(),
+                    cliente.getId(),
+                    cliente.getNome()
+            );
+
+            LoginResponseDTO response = new LoginResponseDTO(
+                    token,
+                    "Bearer",
+                    usuario.getId(),
+                    usuario.getEmail(),
+                    usuario.getTipo().name(),
+                    cliente.getNome(),
+                    cliente.getId()
+            );
+
+            return ResponseEntity.ok(response);
+
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(null);
+        }
+    }
+
     @PostMapping("/cadastro/cliente")
     @Operation(summary = "Cadastrar cliente", description = "Cadastra um novo cliente no sistema")
     public ResponseEntity<ClienteResponseDTO> cadastrarCliente(@Valid @RequestBody CadastroClienteRequestDTO request) {
-        // Criar usuário
         Usuario usuario = new Usuario();
         usuario.setEmail(request.getEmail());
         usuario.setSenha(request.getSenha());
         usuario.setTipo(TipoUsuario.CLIENTE);
 
-        // Criar cliente com usuário
         ClienteRequestDTO clienteRequest = new ClienteRequestDTO(
                 request.getNome(),
                 request.getEmail(),
